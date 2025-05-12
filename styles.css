@@ -1,0 +1,140 @@
+.video-accelerator {
+  width: 320px;
+  background: rgba(40, 40, 40, 0.93);
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  color: white;
+  font-family: 'Segoe UI', sans-serif;
+  overflow: hidden;
+}
+
+.control-header {
+  padding: 15px;
+  background: #2a2a2a;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.title {
+  font-size: 12px;
+  color: #aaa;
+}
+
+.speed-display {
+  font-size: 24px;
+  font-weight: bold;
+  color: #4CAF50;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 5px;
+}
+
+.action-btn {
+  background: #555;
+  border: none;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.action-btn.primary {
+  background: #4CAF50;
+}
+
+.speed-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  padding: 15px;
+}
+
+.speed-btn {
+  background: #333;
+  border: none;
+  color: white;
+  padding: 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.speed-btn:hover {
+  background: #444;
+}
+
+.speed-btn.active {
+  background: #4CAF50;
+  font-weight: bold;
+}
+
+.ai-section {
+  padding: 15px;
+  border-top: 1px solid #444;
+}
+
+.progress-bar {
+  height: 4px;
+  background: #444;
+  margin: 10px 0;
+  border-radius: 2px;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background: #4CAF50;
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+.chapters-list {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.chapter-item {
+  padding: 8px 0;
+  border-bottom: 1px dashed #444;
+  cursor: pointer;
+}
+
+.chapter-time {
+  color: #888;
+  font-size: 12px;
+}
+
+.generate-notes-btn {
+  width: 100%;
+  background: #333;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 6px;
+  margin-top: 10px;
+  cursor: pointer;
+}
+
+.generate-notes-btn:hover {
+  background: #444;
+}
+
+/* 跳过提示浮层 */
+.skip-notification {
+  position: fixed;
+  bottom: 100px;
+  right: 30px;
+  background: rgba(0,0,0,0.8);
+  color: white;
+  padding: 10px 15px;
+  border-radius: 6px;
+  z-index: 99998;
+}
+
+.skip-notification a {
+  color: #4CAF50;
+  text-decoration: none;
+} 
