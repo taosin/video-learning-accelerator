@@ -7,6 +7,8 @@ class VideoController {
     this.skipSegments = [];
     this.currentSpeed = 1.0;
     this.isAnalyzing = false;
+    this.subtitles = [];
+    this.currentPlatform = this.detectPlatform();
 
     this.init();
   }
@@ -178,6 +180,92 @@ class VideoController {
       notification.remove();
     }, 3000);
   }
+
+  detectPlatform() {
+    const url = window.location.hostname;
+    if (url.includes("youtube.com")) return "youtube";
+    if (url.includes("bilibili.com")) return "bilibili";
+    if (url.includes("tencent.com")) return "tencent";
+    if (url.includes("163.com")) return "163";
+    return "unknown";
+  }
+
+  async getSubtitles() {
+    switch (this.currentPlatform) {
+      case "youtube":
+        return await this.getYouTubeSubtitles();
+      case "bilibili":
+        return await this.getBilibiliSubtitles();
+      case "tencent":
+        return await this.getTencentSubtitles();
+      case "163":
+        return await this.get163Subtitles();
+      default:
+        return [];
+    }
+  }
+
+  async getYouTubeSubtitles() {
+    // 获取YouTube字幕
+    const captions = document.querySelector(".ytp-caption-segment");
+    if (!captions) return [];
+
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === "childList") {
+          const text = mutation.target.textContent;
+          const time = this.video.currentTime;
+          this.subtitles.push({ text, time });
+        }
+      });
+    });
+
+    observer.observe(captions, {
+      childList: true,
+      subtree: true,
+      characterData: true,
+    });
+
+    return this.subtitles;
+  }
+
+  async getBilibiliSubtitles() {
+    // 获取B站字幕
+    const subtitleContainer = document.querySelector(
+      ".bilibili-player-video-subtitle"
+    );
+    if (!subtitleContainer) return [];
+
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === "childList") {
+          const text = mutation.target.textContent;
+          const time = this.video.currentTime;
+          this.subtitles.push({ text, time });
+        }
+      });
+    });
+
+    observer.observe(subtitleContainer, {
+      childList: true,
+      subtree: true,
+      characterData: true,
+    });
+
+    return this.subtitles;
+  }
+
+  async getTencentSubtitles() {
+    // 获取腾讯视频字幕
+    // 实现获取腾讯视频字幕的逻辑
+    return [];
+  }
+
+  async get163Subtitles() {
+    // 获取网易云音乐字幕
+    // 实现获取网易云音乐字幕的逻辑
+    return [];
+  }
 }
 
 // 初始化视频控制器
@@ -197,6 +285,27 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       break;
     case "SKIP_SILENCE":
       videoController.skipSilentSegments();
+      break;
+    case "GET_SUBTITLES":
+      videoController.getSubtitles().then((subtitles) => {
+        sendResponse({ subtitles });
+      });
+      return true; // 保持消息通道开放
+    case "GENERATE_AI_SUMMARY":
+      videoController.getSubtitles().then((subtitles) => {
+        chrome.runtime.sendMessage({
+          type: "GENERATE_AI_SUMMARY",
+          subtitles,
+        });
+      });
+      break;
+    case "GENERATE_NOTES":
+      videoController.getSubtitles().then((subtitles) => {
+        chrome.runtime.sendMessage({
+          type: "GENERATE_NOTES",
+          subtitles,
+        });
+      });
       break;
   }
 });
