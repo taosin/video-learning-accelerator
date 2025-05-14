@@ -21,6 +21,10 @@ function isVideoPage(url) {
   return videoDomains.some((domain) => url.includes(domain));
 }
 
+// 添加OpenAI API配置
+const OPENAI_API_KEY = ""; // 需要用户配置
+const OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
+
 // 处理来自content script的消息
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   switch (request.type) {
@@ -30,65 +34,193 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       break;
 
     case "GENERATE_AI_SUMMARY":
-      // 调用OpenAI API生成摘要
-      generateAISummary(sender.tab.id);
+      generateAISummary(sender.tab.id, request.subtitles);
+      break;
+
+    case "GENERATE_NOTES":
+      generateNotes(sender.tab.id, request.subtitles);
       break;
   }
 });
 
 // 生成AI摘要
-async function generateAISummary(tabId) {
+async function generateAISummary(tabId, subtitles) {
   try {
-    // 获取视频字幕
-    const subtitles = await getVideoSubtitles(tabId);
+    // 发送进度更新
+    chrome.tabs.sendMessage(tabId, {
+      type: "AI_PROGRESS",
+      progress: 20,
+    });
+
+    // 准备提示词
+    const prompt = `请分析以下视频字幕内容，生成章节标记和关键内容摘要：
+    ${subtitles.map((s) => s.text).join("\n")}
+    
+    请按以下格式返回：
+    1. 章节标题和时间点
+    2. 每个章节的关键内容
+    3. 重要概念和术语`;
 
     // 调用OpenAI API
-    const summary = await callOpenAI(subtitles);
+    const response = await fetch(OPENAI_API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${OPENAI_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: "gpt-3.5-turbo",
+        messages: [
+          {
+            role: "system",
+            content:
+              "你是一个专业的视频内容分析助手，擅长提取视频内容的关键信息和生成结构化的笔记。",
+          },
+          {
+            role: "user",
+            content: prompt,
+          },
+        ],
+        temperature: 0.7,
+      }),
+    });
 
-    // 发送摘要回content script
+    // 发送进度更新
+    chrome.tabs.sendMessage(tabId, {
+      type: "AI_PROGRESS",
+      progress: 60,
+    });
+
+    const data = await response.json();
+    const summary = parseAIResponse(data.choices[0].message.content);
+
+    // 发送进度更新
+    chrome.tabs.sendMessage(tabId, {
+      type: "AI_PROGRESS",
+      progress: 100,
+    });
+
+    // 发送章节信息
     chrome.tabs.sendMessage(tabId, {
       type: "AI_CHAPTERS",
       chapters: summary.chapters,
     });
   } catch (error) {
     console.error("生成AI摘要失败:", error);
+    chrome.tabs.sendMessage(tabId, {
+      type: "AI_ERROR",
+      error: "生成摘要失败，请稍后重试",
+    });
   }
 }
 
-// 获取视频字幕
-async function getVideoSubtitles(tabId) {
-  return new Promise((resolve, reject) => {
-    chrome.tabs.sendMessage(tabId, { type: "GET_SUBTITLES" }, (response) => {
-      if (chrome.runtime.lastError) {
-        reject(chrome.runtime.lastError);
-      } else {
-        resolve(response.subtitles);
-      }
+// 生成完整笔记
+async function generateNotes(tabId, subtitles) {
+  try {
+    // 发送进度更新
+    chrome.tabs.sendMessage(tabId, {
+      type: "AI_PROGRESS",
+      progress: 20,
     });
-  });
+
+    // 准备提示词
+    const prompt = `请根据以下视频字幕内容，生成一份完整的学习笔记：
+    ${subtitles.map((s) => s.text).join("\n")}
+    
+    请按以下格式生成笔记：
+    1. 视频概述
+    2. 主要章节内容
+    3. 重要概念解释
+    4. 关键点总结
+    5. 学习建议`;
+
+    // 调用OpenAI API
+    const response = await fetch(OPENAI_API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${OPENAI_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: "gpt-3.5-turbo",
+        messages: [
+          {
+            role: "system",
+            content:
+              "你是一个专业的学习助手，擅长将视频内容转化为结构化的学习笔记。",
+          },
+          {
+            role: "user",
+            content: prompt,
+          },
+        ],
+        temperature: 0.7,
+      }),
+    });
+
+    // 发送进度更新
+    chrome.tabs.sendMessage(tabId, {
+      type: "AI_PROGRESS",
+      progress: 60,
+    });
+
+    const data = await response.json();
+    const notes = data.choices[0].message.content;
+
+    // 发送进度更新
+    chrome.tabs.sendMessage(tabId, {
+      type: "AI_PROGRESS",
+      progress: 100,
+    });
+
+    // 发送笔记内容
+    chrome.tabs.sendMessage(tabId, {
+      type: "NOTES_GENERATED",
+      notes: notes,
+    });
+
+    // 保存笔记到本地存储
+    chrome.storage.local.set({
+      [`notes_${tabId}`]: {
+        timestamp: Date.now(),
+        content: notes,
+      },
+    });
+  } catch (error) {
+    console.error("生成笔记失败:", error);
+    chrome.tabs.sendMessage(tabId, {
+      type: "AI_ERROR",
+      error: "生成笔记失败，请稍后重试",
+    });
+  }
 }
 
-// 调用OpenAI API
-async function callOpenAI(subtitles) {
-  // TODO: 实现OpenAI API调用
-  // 这里需要添加实际的API调用代码
-  return {
-    chapters: [
-      {
-        time: 80,
-        title: "机器学习基础概念",
-        description: "检测到3个专业术语",
-      },
-      {
-        time: 345,
-        title: "监督学习原理",
-        description: "公式推导重点",
-      },
-      {
-        time: 750,
-        title: "实战案例演示",
-        description: "建议反复观看",
-      },
-    ],
-  };
+// 解析AI响应
+function parseAIResponse(response) {
+  // 这里需要根据实际的AI响应格式进行解析
+  // 示例实现
+  const chapters = [];
+  const lines = response.split("\n");
+
+  for (const line of lines) {
+    if (line.match(/^\d+\./)) {
+      const match = line.match(/\[(\d+:\d+)\]\s*(.+)/);
+      if (match) {
+        const [_, time, title] = match;
+        chapters.push({
+          time: parseTimeToSeconds(time),
+          title: title.trim(),
+          description: "AI生成的内容摘要",
+        });
+      }
+    }
+  }
+
+  return { chapters };
+}
+
+// 将时间字符串转换为秒数
+function parseTimeToSeconds(timeStr) {
+  const [minutes, seconds] = timeStr.split(":").map(Number);
+  return minutes * 60 + seconds;
 }
