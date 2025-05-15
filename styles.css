@@ -137,4 +137,263 @@
 .skip-notification a {
   color: #4CAF50;
   text-decoration: none;
+}
+
+/* 基础样式 */
+body {
+  width: 400px;
+  margin: 0;
+  padding: 16px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+.container {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* 头部样式 */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  border-bottom: 1px solid #eee;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 18px;
+  color: #333;
+}
+
+.ai-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#ai-provider-status {
+  font-size: 14px;
+  color: #666;
+}
+
+.config-button {
+  padding: 4px 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: #f5f5f5;
+  color: #666;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.config-button:hover {
+  background: #eee;
+}
+
+/* 内容区域样式 */
+.content {
+  padding: 16px;
+}
+
+.video-info {
+  margin-bottom: 16px;
+}
+
+.video-info h2 {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  color: #333;
+}
+
+#video-title {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+#video-platform {
+  font-size: 12px;
+  color: #999;
+}
+
+/* 控制按钮样式 */
+.controls {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.primary-button {
+  flex: 1;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  background: #1a73e8;
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s;
+}
+
+.primary-button:hover {
+  background: #1557b0;
+}
+
+.primary-button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+/* 进度条样式 */
+.progress-container {
+  margin: 16px 0;
+}
+
+.progress-bar {
+  height: 4px;
+  background: #eee;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+#progress-bar-fill {
+  height: 100%;
+  background: #1a73e8;
+  width: 0;
+  transition: width 0.3s;
+}
+
+#progress-text {
+  font-size: 12px;
+  color: #666;
+  text-align: center;
+  margin-top: 4px;
+}
+
+/* 章节列表样式 */
+.chapters-container {
+  margin-top: 16px;
+}
+
+.chapters-container h3 {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  color: #333;
+}
+
+#chapters-list {
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid #eee;
+  border-radius: 4px;
+  padding: 8px;
+}
+
+.chapter-item {
+  padding: 8px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.chapter-item:last-child {
+  border-bottom: none;
+}
+
+.chapter-item:hover {
+  background: #f5f5f5;
+}
+
+.chapter-time {
+  font-size: 12px;
+  color: #666;
+  margin-right: 8px;
+}
+
+.chapter-title {
+  font-size: 14px;
+  color: #333;
+}
+
+/* 笔记模态框样式 */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-header {
+  padding: 16px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 18px;
+  color: #333;
+}
+
+.modal-body {
+  padding: 16px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.modal-footer {
+  padding: 16px;
+  border-top: 1px solid #eee;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.modal-button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.modal-button.primary {
+  background: #1a73e8;
+  color: white;
+}
+
+.modal-button.secondary {
+  background: #f5f5f5;
+  color: #666;
+}
+
+/* 错误提示样式 */
+.error-message {
+  padding: 8px 16px;
+  background: #ffebee;
+  color: #c62828;
+  border-radius: 4px;
+  margin: 8px 0;
+  font-size: 14px;
 } 

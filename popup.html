@@ -2,48 +2,46 @@
 <html>
     <head>
         <meta charset="UTF-8">
+        <title>视频学习加速器</title>
         <link rel="stylesheet" href="styles.css">
     </head>
     <body>
-        <div class="video-accelerator">
-            <div class="control-header">
-                <div>
-                    <div class="title">视频学习加速器</div>
-                    <div class="speed-display">1.0x</div>
-                </div>
-                <div class="action-buttons">
-                    <button id="skipSilence" class="action-btn">跳过静音</button>
-                    <button id="generateAI"
-                        class="action-btn primary">AI摘要</button>
+        <div class="container">
+            <div class="header">
+                <h1>视频学习加速器</h1>
+                <div class="ai-status">
+                    <span id="ai-provider-status">正在加载...</span>
+                    <button id="config-button" class="config-button">配置</button>
                 </div>
             </div>
 
-            <div class="speed-grid">
-                <button class="speed-btn" data-speed="0.25">0.25x</button>
-                <button class="speed-btn" data-speed="0.5">0.5x</button>
-                <button class="speed-btn" data-speed="0.75">0.75x</button>
-                <button class="speed-btn active" data-speed="1.0">1.0x</button>
-                <button class="speed-btn" data-speed="1.25">1.25x</button>
-                <button class="speed-btn" data-speed="1.5">1.5x</button>
-                <button class="speed-btn" data-speed="1.75">1.75x</button>
-                <button class="speed-btn" data-speed="2.0">2.0x</button>
-                <button class="speed-btn" data-speed="2.5">2.5x</button>
-                <button class="speed-btn" data-speed="3.0">3.0x</button>
-                <button class="speed-btn" data-speed="3.5">3.5x</button>
-                <button class="speed-btn" data-speed="4.0">4.0x</button>
-            </div>
+            <div class="content">
+                <div class="video-info">
+                    <h2>视频信息</h2>
+                    <div id="video-title">未检测到视频</div>
+                    <div id="video-platform">平台: -</div>
+                </div>
 
-            <div class="ai-section">
-                <h4>AI章节标记</h4>
-                <div class="progress-bar">
-                    <div class="progress-fill"></div>
+                <div class="controls">
+                    <button id="generate-summary"
+                        class="primary-button">生成AI摘要</button>
+                    <button id="generate-notes"
+                        class="primary-button">生成学习笔记</button>
                 </div>
-                <div id="chaptersList" class="chapters-list">
-                    <!-- 章节列表将通过JavaScript动态生成 -->
+
+                <div id="progress-container" class="progress-container"
+                    style="display: none;">
+                    <div class="progress-bar">
+                        <div id="progress-bar-fill"></div>
+                    </div>
+                    <div id="progress-text">0%</div>
                 </div>
-                <button id="generateNotes" class="generate-notes-btn">
-                    生成完整笔记
-                </button>
+
+                <div id="chapters-container" class="chapters-container"
+                    style="display: none;">
+                    <h3>章节列表</h3>
+                    <div id="chapters-list"></div>
+                </div>
             </div>
         </div>
         <script src="popup.js"></script>

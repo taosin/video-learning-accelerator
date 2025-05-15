@@ -21,9 +21,26 @@ function isVideoPage(url) {
   return videoDomains.some((domain) => url.includes(domain));
 }
 
-// 添加OpenAI API配置
-const OPENAI_API_KEY = ""; // 需要用户配置
-const OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
+// AI API配置
+const API_CONFIGS = {
+  openai: {
+    url: "https://api.openai.com/v1/chat/completions",
+    model: "gpt-3.5-turbo",
+  },
+  deepseek: {
+    url: "https://api.deepseek.com/v1/chat/completions",
+    model: "deepseek-chat",
+  },
+};
+
+// 获取AI配置
+async function getAIConfig() {
+  return new Promise((resolve) => {
+    chrome.storage.local.get(["aiConfig"], function (result) {
+      resolve(result.aiConfig || { provider: "openai" });
+    });
+  });
+}
 
 // 处理来自content script的消息
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
@@ -46,6 +63,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 // 生成AI摘要
 async function generateAISummary(tabId, subtitles) {
   try {
+    // 获取AI配置
+    const config = await getAIConfig();
+    if (!config[`${config.provider}Key`]) {
+      throw new Error("请先在配置页面设置API密钥");
+    }
+
     // 发送进度更新
     chrome.tabs.sendMessage(tabId, {
       type: "AI_PROGRESS",
@@ -61,15 +84,16 @@ async function generateAISummary(tabId, subtitles) {
     2. 每个章节的关键内容
     3. 重要概念和术语`;
 
-    // 调用OpenAI API
-    const response = await fetch(OPENAI_API_URL, {
+    // 调用AI API
+    const apiConfig = API_CONFIGS[config.provider];
+    const response = await fetch(apiConfig.url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${OPENAI_API_KEY}`,
+        Authorization: `Bearer ${config[`${config.provider}Key`]}`,
       },
       body: JSON.stringify({
-        model: "gpt-3.5-turbo",
+        model: apiConfig.model,
         messages: [
           {
             role: "system",
@@ -109,7 +133,7 @@ async function generateAISummary(tabId, subtitles) {
     console.error("生成AI摘要失败:", error);
     chrome.tabs.sendMessage(tabId, {
       type: "AI_ERROR",
-      error: "生成摘要失败，请稍后重试",
+      error: error.message || "生成摘要失败，请稍后重试",
     });
   }
 }
@@ -117,6 +141,12 @@ async function generateAISummary(tabId, subtitles) {
 // 生成完整笔记
 async function generateNotes(tabId, subtitles) {
   try {
+    // 获取AI配置
+    const config = await getAIConfig();
+    if (!config[`${config.provider}Key`]) {
+      throw new Error("请先在配置页面设置API密钥");
+    }
+
     // 发送进度更新
     chrome.tabs.sendMessage(tabId, {
       type: "AI_PROGRESS",
@@ -134,15 +164,16 @@ async function generateNotes(tabId, subtitles) {
     4. 关键点总结
     5. 学习建议`;
 
-    // 调用OpenAI API
-    const response = await fetch(OPENAI_API_URL, {
+    // 调用AI API
+    const apiConfig = API_CONFIGS[config.provider];
+    const response = await fetch(apiConfig.url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${OPENAI_API_KEY}`,
+        Authorization: `Bearer ${config[`${config.provider}Key`]}`,
       },
       body: JSON.stringify({
-        model: "gpt-3.5-turbo",
+        model: apiConfig.model,
         messages: [
           {
             role: "system",
@@ -190,7 +221,7 @@ async function generateNotes(tabId, subtitles) {
     console.error("生成笔记失败:", error);
     chrome.tabs.sendMessage(tabId, {
       type: "AI_ERROR",
-      error: "生成笔记失败，请稍后重试",
+      error: error.message || "生成笔记失败，请稍后重试",
     });
   }
 }
