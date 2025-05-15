@@ -11,7 +11,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 初始化AI摘要功能
     initAISummary(currentTab);
+
+    // 初始化AI提供商状态
+    initAIProviderStatus();
   });
+
+  // 添加配置按钮点击事件
+  const configButton = document.getElementById("config-button");
+  if (configButton) {
+    configButton.addEventListener("click", function () {
+      chrome.runtime.openOptionsPage();
+    });
+  }
 });
 
 function initSpeedButtons(tab) {
@@ -55,18 +66,30 @@ function updateSpeedDisplay(speed) {
 }
 
 function initActionButtons(tab) {
-  const skipSilenceBtn = document.getElementById("skipSilence");
-  const generateAIBtn = document.getElementById("generateAI");
+  const skipSilenceBtn = document.getElementById("skip-silence");
+  const generateSummaryBtn = document.getElementById("generate-summary");
+  const generateNotesBtn = document.getElementById("generate-notes");
 
   // 跳过静音按钮
-  skipSilenceBtn.addEventListener("click", () => {
-    chrome.tabs.sendMessage(tab.id, { type: "SKIP_SILENCE" });
-  });
+  if (skipSilenceBtn) {
+    skipSilenceBtn.addEventListener("click", () => {
+      chrome.tabs.sendMessage(tab.id, { type: "SKIP_SILENCE" });
+    });
+  }
 
   // AI摘要按钮
-  generateAIBtn.addEventListener("click", () => {
-    chrome.tabs.sendMessage(tab.id, { type: "GENERATE_AI_SUMMARY" });
-  });
+  if (generateSummaryBtn) {
+    generateSummaryBtn.addEventListener("click", () => {
+      chrome.tabs.sendMessage(tab.id, { type: "GENERATE_AI_SUMMARY" });
+    });
+  }
+
+  // 生成笔记按钮
+  if (generateNotesBtn) {
+    generateNotesBtn.addEventListener("click", () => {
+      chrome.tabs.sendMessage(tab.id, { type: "GENERATE_NOTES" });
+    });
+  }
 }
 
 function initAISummary(tab) {
@@ -259,4 +282,30 @@ function showError(error) {
   setTimeout(() => {
     errorDiv.remove();
   }, 3000);
+}
+
+// 初始化AI提供商状态
+async function initAIProviderStatus() {
+  const statusElement = document.getElementById("ai-provider-status");
+  if (!statusElement) return;
+
+  try {
+    const config = await new Promise((resolve) => {
+      chrome.storage.sync.get(["aiConfig"], function (result) {
+        resolve(result.aiConfig || { provider: "openai" });
+      });
+    });
+
+    const providerName = config.provider === "openai" ? "OpenAI" : "DeepSeek";
+    const hasKey = !!config[`${config.provider}Key`];
+
+    statusElement.textContent = `当前AI提供商: ${providerName} (${
+      hasKey ? "已配置" : "未配置"
+    })`;
+    statusElement.style.color = hasKey ? "#4CAF50" : "#f44336";
+  } catch (error) {
+    console.error("获取AI提供商状态失败:", error);
+    statusElement.textContent = "获取AI提供商状态失败";
+    statusElement.style.color = "#f44336";
+  }
 }
