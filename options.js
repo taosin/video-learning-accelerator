@@ -28,8 +28,18 @@ function loadConfig() {
 // 保存配置
 function saveConfig() {
   const provider = document.getElementById("aiProvider").value;
-  const openaiKey = document.getElementById("openaiKey").value;
-  const deepseekKey = document.getElementById("deepseekKey").value;
+  const openaiKey = document.getElementById("openaiKey").value.trim();
+  const deepseekKey = document.getElementById("deepseekKey").value.trim();
+
+  // 验证当前选中的提供商是否已输入密钥
+  if (provider === "openai" && !openaiKey) {
+    showStatus("请输入OpenAI API密钥", "error");
+    return;
+  }
+  if (provider === "deepseek" && !deepseekKey) {
+    showStatus("请输入DeepSeek API密钥", "error");
+    return;
+  }
 
   const config = {
     provider,
@@ -37,8 +47,17 @@ function saveConfig() {
     deepseekKey,
   };
 
+  // 保存到Chrome存储
   chrome.storage.local.set({ aiConfig: config }, function () {
-    showStatus("配置已保存", "success");
+    if (chrome.runtime.lastError) {
+      showStatus("保存配置失败: " + chrome.runtime.lastError.message, "error");
+    } else {
+      showStatus("配置已保存", "success");
+      // 验证保存是否成功
+      chrome.storage.local.get(["aiConfig"], function (result) {
+        console.log("保存的配置:", result.aiConfig);
+      });
+    }
   });
 }
 

@@ -396,4 +396,74 @@ body {
   border-radius: 4px;
   margin: 8px 0;
   font-size: 14px;
+}
+
+/* 倍速控制样式 */
+.speed-control {
+  margin: 16px 0;
+  text-align: center;
+}
+
+.speed-display {
+  font-size: 24px;
+  font-weight: bold;
+  color: #1a73e8;
+  margin-bottom: 8px;
+}
+
+.speed-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  padding: 8px;
+  background: #f5f5f5;
+  border-radius: 8px;
+}
+
+.speed-btn {
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: white;
+  color: #666;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.speed-btn:hover {
+  background: #e8f0fe;
+  border-color: #1a73e8;
+  color: #1a73e8;
+}
+
+.speed-btn.active {
+  background: #1a73e8;
+  border-color: #1a73e8;
+  color: white;
+}
+
+/* 功能按钮样式 */
+.controls {
+  display: flex;
+  gap: 8px;
+  margin: 16px 0;
+}
+
+.action-button {
+  flex: 1;
+  padding: 8px 16px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: #f5f5f5;
+  color: #666;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.action-button:hover {
+  background: #e8f0fe;
+  border-color: #1a73e8;
+  color: #1a73e8;
 } 

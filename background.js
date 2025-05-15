@@ -35,9 +35,30 @@ const API_CONFIGS = {
 
 // 获取AI配置
 async function getAIConfig() {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     chrome.storage.local.get(["aiConfig"], function (result) {
-      resolve(result.aiConfig || { provider: "openai" });
+      if (chrome.runtime.lastError) {
+        console.error("获取配置失败:", chrome.runtime.lastError);
+        reject(chrome.runtime.lastError);
+        return;
+      }
+
+      const config = result.aiConfig || { provider: "openai" };
+      console.log("当前AI配置:", config);
+
+      // 验证配置是否有效
+      if (!config[`${config.provider}Key`]) {
+        reject(
+          new Error(
+            `未配置${
+              config.provider === "openai" ? "OpenAI" : "DeepSeek"
+            } API密钥`
+          )
+        );
+        return;
+      }
+
+      resolve(config);
     });
   });
 }
@@ -65,9 +86,6 @@ async function generateAISummary(tabId, subtitles) {
   try {
     // 获取AI配置
     const config = await getAIConfig();
-    if (!config[`${config.provider}Key`]) {
-      throw new Error("请先在配置页面设置API密钥");
-    }
 
     // 发送进度更新
     chrome.tabs.sendMessage(tabId, {
@@ -143,9 +161,6 @@ async function generateNotes(tabId, subtitles) {
   try {
     // 获取AI配置
     const config = await getAIConfig();
-    if (!config[`${config.provider}Key`]) {
-      throw new Error("请先在配置页面设置API密钥");
-    }
 
     // 发送进度更新
     chrome.tabs.sendMessage(tabId, {

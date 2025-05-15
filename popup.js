@@ -66,18 +66,30 @@ function updateSpeedDisplay(speed) {
 }
 
 function initActionButtons(tab) {
-  const skipSilenceBtn = document.getElementById("skipSilence");
-  const generateAIBtn = document.getElementById("generateAI");
+  const skipSilenceBtn = document.getElementById("skip-silence");
+  const generateSummaryBtn = document.getElementById("generate-summary");
+  const generateNotesBtn = document.getElementById("generate-notes");
 
   // 跳过静音按钮
-  skipSilenceBtn.addEventListener("click", () => {
-    chrome.tabs.sendMessage(tab.id, { type: "SKIP_SILENCE" });
-  });
+  if (skipSilenceBtn) {
+    skipSilenceBtn.addEventListener("click", () => {
+      chrome.tabs.sendMessage(tab.id, { type: "SKIP_SILENCE" });
+    });
+  }
 
   // AI摘要按钮
-  generateAIBtn.addEventListener("click", () => {
-    chrome.tabs.sendMessage(tab.id, { type: "GENERATE_AI_SUMMARY" });
-  });
+  if (generateSummaryBtn) {
+    generateSummaryBtn.addEventListener("click", () => {
+      chrome.tabs.sendMessage(tab.id, { type: "GENERATE_AI_SUMMARY" });
+    });
+  }
+
+  // 生成笔记按钮
+  if (generateNotesBtn) {
+    generateNotesBtn.addEventListener("click", () => {
+      chrome.tabs.sendMessage(tab.id, { type: "GENERATE_NOTES" });
+    });
+  }
 }
 
 function initAISummary(tab) {
