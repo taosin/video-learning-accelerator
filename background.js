@@ -36,7 +36,7 @@ const API_CONFIGS = {
 // 获取AI配置
 async function getAIConfig() {
   return new Promise((resolve, reject) => {
-    chrome.storage.local.get(["aiConfig"], function (result) {
+    chrome.storage.sync.get(["aiConfig"], function (result) {
       if (chrome.runtime.lastError) {
         console.error("获取配置失败:", chrome.runtime.lastError);
         reject(chrome.runtime.lastError);

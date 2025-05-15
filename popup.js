@@ -291,7 +291,7 @@ async function initAIProviderStatus() {
 
   try {
     const config = await new Promise((resolve) => {
-      chrome.storage.local.get(["aiConfig"], function (result) {
+      chrome.storage.sync.get(["aiConfig"], function (result) {
         resolve(result.aiConfig || { provider: "openai" });
       });
     });

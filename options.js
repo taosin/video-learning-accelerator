@@ -12,7 +12,9 @@ document.getElementById("aiProvider").addEventListener("change", function (e) {
 
 // 加载配置
 function loadConfig() {
-  chrome.storage.local.get(["aiConfig"], function (result) {
+  console.log("开始加载配置...");
+  chrome.storage.sync.get(["aiConfig"], function (result) {
+    console.log("获取到的配置:", result);
     if (result.aiConfig) {
       const config = result.aiConfig;
       document.getElementById("aiProvider").value = config.provider || "openai";
@@ -27,9 +29,14 @@ function loadConfig() {
 
 // 保存配置
 function saveConfig() {
+  console.log("开始保存配置...");
   const provider = document.getElementById("aiProvider").value;
   const openaiKey = document.getElementById("openaiKey").value.trim();
   const deepseekKey = document.getElementById("deepseekKey").value.trim();
+
+  console.log("当前选择的提供商:", provider);
+  console.log("OpenAI Key长度:", openaiKey.length);
+  console.log("DeepSeek Key长度:", deepseekKey.length);
 
   // 验证当前选中的提供商是否已输入密钥
   if (provider === "openai" && !openaiKey) {
@@ -47,15 +54,25 @@ function saveConfig() {
     deepseekKey,
   };
 
+  console.log("准备保存的配置:", config);
+
   // 保存到Chrome存储
-  chrome.storage.local.set({ aiConfig: config }, function () {
+  chrome.storage.sync.set({ aiConfig: config }, function () {
     if (chrome.runtime.lastError) {
+      console.error("保存配置失败:", chrome.runtime.lastError);
       showStatus("保存配置失败: " + chrome.runtime.lastError.message, "error");
     } else {
+      console.log("配置保存成功");
       showStatus("配置已保存", "success");
+
       // 验证保存是否成功
-      chrome.storage.local.get(["aiConfig"], function (result) {
-        console.log("保存的配置:", result.aiConfig);
+      chrome.storage.sync.get(["aiConfig"], function (result) {
+        console.log("保存后读取的配置:", result.aiConfig);
+        if (result.aiConfig && result.aiConfig[`${provider}Key`]) {
+          console.log("配置验证成功");
+        } else {
+          console.error("配置验证失败");
+        }
       });
     }
   });
@@ -69,9 +86,11 @@ function toggleVisibility(inputId) {
 
 // 显示状态信息
 function showStatus(message, type) {
+  console.log("状态信息:", message, type);
   const status = document.getElementById("status");
   status.textContent = message;
   status.className = "status " + type;
+  status.style.display = "block";
 
   setTimeout(() => {
     status.style.display = "none";
